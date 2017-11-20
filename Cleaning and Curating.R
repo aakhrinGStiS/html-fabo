@@ -33,7 +33,7 @@ df_temp <- as.data.frame(
         nrow = temp[[2]], 
         ncol = ncol(data_frame)))
 names(df_temp) <- names(data_frame)
-df_temp[1:nrow(df_temp),] <- data_frame[1,]
+df_temp[1:nrow(df_temp),] <- data_frame[row_num,]
 df_temp$cleaned.likes <- temp[[1]]
 return(df_temp[,-4])
 }
