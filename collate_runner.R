@@ -16,13 +16,13 @@ df_list <- list()
 
 for(i in 1:(min(which(is.na(df[,6]))) - 1)){
 temp_data <- gs_title(df[i,4])
-temp_df <- gs_read(temp_data, "Artists Fans")
+temp_df <- gs_read(temp_data, "Sheet 1")
 df_list[[i]] <- as.data.frame(temp_df)
 print(paste0(i, " is done bro!"))
 }
 
 df_collated <- df_list[[1]]
-for(i in 2:16){df_collated <- rbind(df_collated, df_list[[i]])}
+for(i in 2:13){df_collated <- rbind(df_collated, df_list[[i]])}
 df_collated <- df_collated[,-c(1,4)]
 df_collated <- df_collated[df_collated[,3] != 0,]
 df_collated <- unique(df_collated)
