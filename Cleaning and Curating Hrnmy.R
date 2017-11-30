@@ -1,18 +1,3 @@
-# Convert the columns Artist.Name, Artist.Id, User.Id, Likes to characters from factors
-data1[,1] <- as.character(data1[,1])
-data1[,2] <- as.character(data1[,2])
-data1[,3] <- as.character(data1[,3])
-data1[,4] <- as.character(data1[,4])
-
-# Remove non focus url tags
-data1$cleaned.User.Id <- sapply(1:nrow(data1), function(i) unlist(strsplit(data1[i,3], split = "([?|&]fref)|([?|&]hc_ref)"))[1])
-
-# Replacing the NAs with the page's IDs
-data1[which(is.na(data1[,1])), 1] <- data1[(which(is.na(data1[,1]))-1), 1]
-data1[which(is.na(data1[,2])), 2] <- data1[(which(is.na(data1[,2]))-1), 2]
-data1[which(is.na(data1[,3])), 3] <- data1[(which(is.na(data1[,3]))-1), 3]
-data1$cleaned.User.Id[which(is.na(data1$cleaned.User.Id))] <- data1$cleaned.User.Id[which(is.na(data1$cleaned.User.Id))-1]
-
 # Function to curate the HTML code to a page format
 html_curator <- function(data_frame, col_num, row_num){
 temp <- c(data_frame[row_num,col_num], data_frame$Artist.Id[row_num])
@@ -38,9 +23,32 @@ df_temp$cleaned.likes <- temp[[1]]
 return(df_temp[,-4])
 }
 
-# Creating the dataset to include all the pages liked by a FaUs
-data1_new <- data_expander(data1, 1)
-for(i in 2:nrow(data1)){
-data1_new <- rbind(data1_new, data_expander(data1, i))}
 
+data_list <- list()
+for(i in 1:3) data_list[[i]] <- read.csv(list.files()[i])
+data_list_new <- list()
+
+
+
+# Convert the columns Artist.Name, Artist.Id, User.Id, Likes to characters from factors
+for(j in 1:3){
+data_list[[j]][,1] <- as.character(data_list[[j]][,1])
+data_list[[j]][,2] <- as.character(data_list[[j]][,2])
+data_list[[j]][,3] <- as.character(data_list[[j]][,3])
+data_list[[j]][,4] <- as.character(data_list[[j]][,4])
+
+# Remove non focus url tags
+data_list[[j]]$cleaned.User.Id <- sapply(1:nrow(data_list[[j]]), function(i) unlist(strsplit(data_list[[j]][i,3], split = "([?|&]fref)|([?|&]hc_ref)"))[1])
+
+# Replacing the NAs with the page's IDs
+data_list[[j]][which(is.na(data_list[[j]][,1])), 1] <- data_list[[j]][(which(is.na(data_list[[j]][,1]))-1), 1]
+data_list[[j]][which(is.na(data_list[[j]][,2])), 2] <- data_list[[j]][(which(is.na(data_list[[j]][,2]))-1), 2]
+data_list[[j]][which(is.na(data_list[[j]][,3])), 3] <- data_list[[j]][(which(is.na(data_list[[j]][,3]))-1), 3]
+data_list[[j]]$cleaned.User.Id[which(is.na(data_list[[j]]$cleaned.User.Id))] <- data_list[[j]]$cleaned.User.Id[which(is.na(data_list[[j]]$cleaned.User.Id))-1]
+
+# Creating the dataset to include all the pages liked by a FaUs
+data_list_new[[j]] <- data_expander(data_list[[j]], 1)
+for(i in 2:nrow(data_list[[j]])){
+data_list_new[[j]] <- rbind(data_list_new[[j]], data_expander(data_list[[j]], i))}
+}
 
