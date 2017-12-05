@@ -114,6 +114,7 @@ for(j in 1:length(data_list)){
 df_list <- list()
 df_list[[1]] <- gs_new(
         paste0(df[1,3], "_curated"),
+        ws_title = "Curated"
         input = data_list_new[[1]],
         trim = TRUE, 
         verbose = FALSE
