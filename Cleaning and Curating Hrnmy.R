@@ -55,20 +55,25 @@ sheets_internal <- lapply(
 
 data_list <- lapply(
         sheets, 
-        function(i) gs_read(gs_title(i), "Sheet1")
+        function(i) as.data.frame(gs_read(gs_title(i), "Sheet1"))
         )
 
-data_list_new <- gs_read(gs_title(sheets[[2]]), "Sheet2")
+data_list[[2]] <- data_list[[2]][!is.na(data_list[[2]][,4]), ]
+data_list[[3]] <- data_list[[3]][!is.na(data_list[[3]][,4]), ]
+data_list[[6]] <- data_list[[6]][!is.na(data_list[[6]][,4]), ]
 
-data_list_new <- append(
-        data_list_new, 
-        gs_read(gs_title(df[2, 3]), "Sheet1")
+data_list_standoff <- list()
+data_list_standoff[[1]] <- gs_read(gs_title(sheets[[2]]), "Sheet2")
+
+data_list_standoff <- append(
+        data_list_standoff, 
+        list(gs_read(gs_title(df[2, 3]), "Sheet1"))
 )
 
-
+data_list_new <- list()
 
 # Convert the columns Artist.Name, Artist.Id, User.Id, Likes to characters from factors
-for(j in 1:50){
+for(j in 1:length(data_list)){
         data_list[[j]][, 1] <- as.character(data_list[[j]][, 1])
         data_list[[j]][, 2] <- as.character(data_list[[j]][, 2])
         data_list[[j]][, 3] <- as.character(data_list[[j]][, 3])
@@ -102,4 +107,3 @@ for(j in 1:50){
                 }
         }
 }
-
