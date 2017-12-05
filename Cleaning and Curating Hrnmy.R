@@ -1,3 +1,16 @@
+# required package: googlesheets
+library(googlesheets)
+
+# authenitcate browser
+gs_ls()
+
+# read the required spreadsheet data
+data <- gs_title("Recomally_Data_Collator")
+df <- gs_read(data, "Tracker")
+
+# curate the data set
+df <- as.data.frame(df)
+
 # Function to curate the HTML code to a page format
 html_curator <- function(data_frame, col_num, row_num){
 temp <- c(data_frame[row_num,col_num], data_frame$Artist.Id[row_num])
