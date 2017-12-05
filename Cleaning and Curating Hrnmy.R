@@ -1,6 +1,9 @@
 # Function to curate the HTML code to a page format
 html_curator <- function(data_frame, col_num, row_num){
-        temp <- c(data_frame[row_num,col_num], data_frame$Artist.Id[row_num])
+        temp <- c(
+                data_frame[row_num,col_num],
+                data_frame$Artist.Id[row_num]
+        )
         temp <- unlist(strsplit(temp, split = "http[s]?://"))
         temp <- temp[grep(temp, pattern = "facebook")]
         temp <- sapply(
@@ -107,3 +110,23 @@ for(j in 1:length(data_list)){
                 }
         }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
