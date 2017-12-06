@@ -4,31 +4,81 @@ html_curator <- function(data_frame, col_num, row_num){
                 data_frame[row_num,col_num],
                 data_frame$Artist.Id[row_num]
         )
-        temp <- unlist(strsplit(temp, split = "http[s]?://"))
-        temp <- temp[grep(temp, pattern = "facebook")]
-        temp <- sapply(
+        
+        temp <- unlist(strsplit(temp, split = "<li class"))
+        temp_num <- sapply(
                 1:length(temp), 
-                function(i) unlist(strsplit(temp[i], split = " "))[1]
+                function(i) length(grep(
+                        temp[i], 
+                        pattern = "data-collection-item"))
                 )
-        temp <- temp[grep(temp, pattern = "[f]?ref")]
-        temp <- unique(unlist(strsplit(temp, split = "[/]?\\?[f]?ref")))
-        temp <- unique(temp[grep(temp, pattern = "facebook")])
-        return(list(temp, length(temp)))
+        temp <- temp[which(temp_num == 1)]
+        
+        if(length(temp) != 0){
+                temp_page <- sapply(
+                        1:length(temp),
+                        function(i) unlist(strsplit(
+                                unlist(strsplit(
+                                        temp[i],
+                                        split= "href="
+                                ))[2],
+                                split = " "
+                        ))[1]
+                        )
+                
+                temp_page <- unlist(strsplit(
+                        temp_page,
+                        split = "\""
+                ))[(1:length(temp_page))*2]
+                
+                temp_catergory <- sapply(
+                        1:length(temp),
+                        function(i) unlist(strsplit(
+                                unlist(strsplit(
+                                        temp[i],
+                                        split = "fsm fwn fcg"
+                                ))[2],
+                                split = "</div"
+                        ))[1]
+                        )
+                
+                temp_category <- unlist(strsplit(
+                        temp_catergory,
+                        split = ">"
+                ))[(1:length(temp_catergory))*2]
+                
+                if(length(temp_page) == length(temp_category)){
+                        return(list(temp_page,
+                                    temp_category,
+                                    length(temp_page))
+                              )} else {
+                        return("ERROOOOOOOOORRRRRR!!!")
+                }
+        }
 }
 
 # Function to expand the data set to include all the pages liked by a FaUs
 data_expander <- function(data_frame, row_num){
-        temp <- html_curator(data_frame, 4, row_num)
-        df_temp <- as.data.frame(
-                matrix(NA, 
-                       nrow = temp[[2]], 
-                       ncol = ncol(data_frame)
-                      )
-        )
-        names(df_temp) <- names(data_frame)
-        df_temp[1:nrow(df_temp),] <- data_frame[row_num,]
-        df_temp$cleaned.likes <- temp[[1]]
-        return(df_temp[, -4])
+        col_num <- which(names(data_list[[1]]) == "Likes")
+        
+        temp <- html_curator(data_frame, col_num, row_num)
+        
+        if(length(temp) != 0){
+                df_temp <- as.data.frame(
+                        matrix(NA,
+                               nrow = temp[[3]],
+                               ncol = ncol(data_frame)
+                              )
+                )
+                
+                names(df_temp) <- names(data_frame)
+                
+                df_temp[1:nrow(df_temp),] <- data_frame[row_num,]
+                df_temp$cleaned.likes <- temp[[1]]
+                df_temp$cleaned.likes.catergory <- temp[[2]]
+                
+                return(df_temp[, -4])
+                }
 }
 
 # required package: googlesheets
@@ -102,32 +152,13 @@ for(j in 1:length(data_list)){
         data_list_new[[j]] <- data_expander(data_list[[j]], 1)
         for(i in 2:nrow(data_list[[j]])){
                 temp <- data_expander(data_list[[j]], i)
-                if(ncol(temp) == 8){
-                        data_list_new[[j]] <- rbind(
-                                data_list_new[[j]], 
-                                data_expander(data_list[[j]], i)
-                        )
+                if(length(temp) != 0){
+                        if(ncol(temp) == ncol(data_list[[j]])){
+                                data_list_new[[j]] <- rbind(
+                                        data_list_new[[j]],
+                                        data_expander(data_list[[j]], i)
+                                )
+                        }
                 }
         }
-}
-
-df_list <- list()
-df_list[[1]] <- gs_new(
-        paste0(df[1,3], "_curated"),
-        ws_title = "Curated"
-        input = data_list_new[[1]],
-        trim = TRUE, 
-        verbose = FALSE
-)
-
-for(i in 2:48){
-        df_list[[i]] <- gs_new(
-                paste0(df[i,3], "_curated"),
-                ws_title = paste0(df[i,3], "_curated"), 
-                input = data_list_new[[i]],
-                trim = TRUE, 
-                verbose = FALSE
-        )
-        print("Sheet ", i , " is done bro!")
-        gc()
 }
