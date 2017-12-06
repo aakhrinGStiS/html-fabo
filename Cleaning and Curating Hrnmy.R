@@ -120,19 +120,14 @@ df_list[[1]] <- gs_new(
         verbose = FALSE
 )
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+for(i in 2:48){
+        df_list[[i]] <- gs_new(
+                paste0(df[i,3], "_curated"),
+                ws_title = paste0(df[i,3], "_curated"), 
+                input = data_list_new[[i]],
+                trim = TRUE, 
+                verbose = FALSE
+        )
+        print("Sheet ", i , " is done bro!")
+        gc()
+}
