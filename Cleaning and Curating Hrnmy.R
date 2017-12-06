@@ -162,3 +162,12 @@ for(j in 1:length(data_list)){
                 }
         }
 }
+
+for(i in 1:length(data_list_new)
+   ) write.csv(
+        data_list_new[[i]], 
+        paste0(df[i, 3], "_curated.csv")
+)
+
+write.csv(data_list_standoff[[1]], "pruthvi_17112017_1_curated.csv")
+write.csv(data_list_standoff[[2]], "hirank_17112017_2_curated.csv")
