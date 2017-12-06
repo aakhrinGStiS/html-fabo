@@ -1,17 +1,16 @@
 # Function to curate the HTML code to a page format
 html_curator <- function(data_frame, col_num, row_num){
-        temp <- c(
-                data_frame[row_num,col_num],
-                data_frame$Artist.Id[row_num]
-        )
+        temp <- data_frame[row_num, col_num]
         
         temp <- unlist(strsplit(temp, split = "<li class"))
+        
         temp_num <- sapply(
                 1:length(temp), 
                 function(i) length(grep(
                         temp[i], 
                         pattern = "data-collection-item"))
                 )
+        
         temp <- temp[which(temp_num == 1)]
         
         if(length(temp) != 0){
@@ -20,9 +19,9 @@ html_curator <- function(data_frame, col_num, row_num){
                         function(i) unlist(strsplit(
                                 unlist(strsplit(
                                         temp[i],
-                                        split= "href="
+                                        split= "[h|f]ref="
                                 ))[2],
-                                split = " "
+                                split = "[ |>]"
                         ))[1]
                         )
                 
@@ -31,7 +30,23 @@ html_curator <- function(data_frame, col_num, row_num){
                         split = "\""
                 ))[(1:length(temp_page))*2]
                 
-                temp_catergory <- sapply(
+                temp_page <- unlist(strsplit(
+                        temp_page,
+                        split = "[\\??]"
+                ))
+                
+                temp_page <- temp_page[grep(
+                        temp_page,
+                        pattern = "http"
+                )]
+                
+                temp_page <- c(temp_page,
+                               data_frame$Artist.Id[row_num],
+                               data_frame$'Artist ID'[row_num],
+                               data_frame$'Artist Id'[row_num]
+                              )
+                
+                temp_category <- sapply(
                         1:length(temp),
                         function(i) unlist(strsplit(
                                 unlist(strsplit(
@@ -43,9 +58,35 @@ html_curator <- function(data_frame, col_num, row_num){
                         )
                 
                 temp_category <- unlist(strsplit(
-                        temp_catergory,
+                        temp_category,
                         split = ">"
-                ))[(1:length(temp_catergory))*2]
+                ))
+                
+                weird_test <- temp_category[grep(
+                        temp_category,
+                        pattern = "data-collection"
+                )]
+                
+                if(length(weird_test) != 0){
+                        temp_category <- unlist(strsplit(
+                                weird_test,
+                                split = "<"
+                        ))
+                        
+                        temp_category <- temp_category[-grep(
+                                temp_category,
+                                pattern = "data-collection"
+                        )]
+                } else {
+                      temp_category <- temp_category[
+                              1:(length(temp_category)/2)*2
+                      ]
+                }
+                
+                temp_category <- c(
+                        temp_category,
+                        "Concerned Artist"
+                )
                 
                 if(length(temp_page) == length(temp_category)){
                         return(list(temp_page,
@@ -59,7 +100,7 @@ html_curator <- function(data_frame, col_num, row_num){
 
 # Function to expand the data set to include all the pages liked by a FaUs
 data_expander <- function(data_frame, row_num){
-        col_num <- which(names(data_list[[1]]) == "Likes")
+        col_num <- which(names(data_frame) == "Likes")
         
         temp <- html_curator(data_frame, col_num, row_num)
         
@@ -97,7 +138,7 @@ df <- df[,-c(1,4,6,7)]
 
 data_list <- list()
 sheets <- sapply(
-        c(1,3:nrow(df)), 
+        c(1, 3:nrow(df)), 
         function(i) paste0(df[i, 3], "_raw")
         )
 
@@ -114,6 +155,9 @@ data_list <- lapply(
 data_list[[2]] <- data_list[[2]][!is.na(data_list[[2]][,4]), ]
 data_list[[3]] <- data_list[[3]][!is.na(data_list[[3]][,4]), ]
 data_list[[6]] <- data_list[[6]][!is.na(data_list[[6]][,4]), ]
+names(data_list[[2]]) <- names(data_list[[4]])
+data_list[[1]]$Comments <- NA
+data_list[[3]]$Comments <- NA
 
 data_list_standoff <- list()
 data_list_standoff[[1]] <- gs_read(gs_title(sheets[[2]]), "Sheet2")
@@ -146,7 +190,6 @@ for(j in 1:length(data_list)){
         data_list[[j]][which(is.na(data_list[[j]][, 2])), 2] <- data_list[[j]][(which(is.na(data_list[[j]][, 2])) - 1), 2]
         data_list[[j]][which(is.na(data_list[[j]][, 3])), 3] <- data_list[[j]][(which(is.na(data_list[[j]][, 3])) - 1), 3]
         data_list[[j]]$cleaned.User.Id[which(is.na(data_list[[j]]$cleaned.User.Id))] <- data_list[[j]]$cleaned.User.Id[which(is.na(data_list[[j]]$cleaned.User.Id))-1]
-        
         
         # Creating the dataset to include all the pages liked by a FaUs
         data_list_new[[j]] <- data_expander(data_list[[j]], 1)
