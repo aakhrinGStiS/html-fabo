@@ -108,22 +108,14 @@ data_expander <- function(data_frame, row_num){
         
         temp <- html_curator(data_frame, col_num, row_num)
         
-        if(length(temp) != 0){
-                df_temp <- as.data.frame(
-                        matrix(NA,
-                               nrow = temp[[3]],
-                               ncol = ncol(data_frame)
-                              )
-                )
-                
-                names(df_temp) <- names(data_frame)
-                
-                df_temp[1:nrow(df_temp),] <- data_frame[row_num,]
-                df_temp$cleaned.likes <- temp[[1]]
-                df_temp$cleaned.likes.catergory <- temp[[2]]
-                
-                return(df_temp[, -4])
-                }
+        if(sum(dim(temp) > 0) == 2){
+                df_temp <- unique(cbind(
+                        data_frame[row_num, -col_num],
+                        html_curator(data_frame, col_num, row_num)
+                ))
+        }
+        
+        return(df_temp)
 }
 
 # required package: googlesheets
@@ -199,14 +191,10 @@ for(j in 1:length(data_list)){
         data_list_new[[j]] <- data_expander(data_list[[j]], 1)
         for(i in 2:nrow(data_list[[j]])){
                 temp <- data_expander(data_list[[j]], i)
-                if(length(temp) != 0){
-                        if(ncol(temp) == ncol(data_list[[j]])){
-                                data_list_new[[j]] <- rbind(
-                                        data_list_new[[j]],
-                                        data_expander(data_list[[j]], i)
-                                )
-                        }
-                }
+                data_list_new[[j]] <- rbind(
+                        data_list_new[[j]],
+                        temp
+                )
         }
 }
 
@@ -215,6 +203,3 @@ for(i in 1:length(data_list_new)
         data_list_new[[i]], 
         paste0(df[i, 3], "_curated.csv")
 )
-
-write.csv(data_list_standoff[[1]], "pruthvi_17112017_1_curated.csv")
-write.csv(data_list_standoff[[2]], "hirank_17112017_2_curated.csv")
