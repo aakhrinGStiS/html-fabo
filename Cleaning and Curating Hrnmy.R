@@ -14,87 +14,82 @@ html_curator <- function(data_frame, col_num, row_num){
         temp <- temp[which(temp_num == 1)]
         
         if(length(temp) != 0){
-                temp_page <- sapply(
+                page_link <- sapply(
                         1:length(temp),
                         function(i) unlist(strsplit(
                                 unlist(strsplit(
                                         temp[i],
-                                        split= "[h|f]ref="
+                                        split = "lfloat _ohe"
                                 ))[2],
-                                split = "[ |>]"
+                                split = "tabindex"
+                        ))[1]
+                        )
+                page_link <- sapply(
+                        1:length(page_link),
+                        function(i) substr(
+                                page_link[i],
+                                start = 3,
+                                stop = nchar(page_link[i]) - 2)
+                        )
+                
+                page_link <- sapply(
+                        1:length(page_link),
+                        function(i) substr(
+                                unlist(strsplit(
+                                        page_link[i],
+                                        split = "\\?"
+                                ))[1],
+                                start = 7,
+                                stop = 10000)
+                        )
+                
+                page_name <- sapply(
+                        1:length(temp),
+                        function(i) unlist(strsplit(
+                                unlist(strsplit(
+                                        temp[i],
+                                        split = "aria-label"
+                                ))[2],
+                                split = "role="
                         ))[1]
                         )
                 
-                temp_page <- unlist(strsplit(
-                        temp_page,
-                        split = "\""
-                ))[(1:length(temp_page))*2]
+                page_name <- sapply(
+                        1:length(page_name),
+                        function(i) substr(
+                                page_name[i],
+                                start = 3,
+                                stop = nchar(page_name[i]) - 2)
+                        )
                 
-                temp_page <- unlist(strsplit(
-                        temp_page,
-                        split = "[\\??]"
-                ))
-                
-                temp_page <- temp_page[grep(
-                        temp_page,
-                        pattern = "http"
-                )]
-                
-                temp_page <- c(temp_page,
-                               data_frame$Artist.Id[row_num],
-                               data_frame$'Artist ID'[row_num],
-                               data_frame$'Artist Id'[row_num]
-                              )
-                
-                temp_category <- sapply(
+                page_cat <- sapply(
                         1:length(temp),
                         function(i) unlist(strsplit(
                                 unlist(strsplit(
                                         temp[i],
-                                        split = "fsm fwn fcg"
+                                        split="fsm fwn fcg"
                                 ))[2],
                                 split = "</div"
                         ))[1]
                         )
                 
-                temp_category <- unlist(strsplit(
-                        temp_category,
-                        split = ">"
-                ))
+                page_cat <- sapply(
+                        1:length(page_cat),
+                        function(i) substr(
+                                page_cat[i],
+                                start = 3,
+                                stop = 100000)
+                        )
                 
-                weird_test <- temp_category[grep(
-                        temp_category,
-                        pattern = "data-collection"
-                )]
+                page_verify <- sapply(
+                        1:length(temp),
+                        function(i) length(
+                                grep(temp[i],
+                                     pattern = "Verified PageFacebook confirmed this is an authentic Page"
+                                    ))
+                        )
                 
-                if(length(weird_test) != 0){
-                        temp_category <- unlist(strsplit(
-                                weird_test,
-                                split = "<"
-                        ))
                         
-                        temp_category <- temp_category[-grep(
-                                temp_category,
-                                pattern = "data-collection"
-                        )]
-                } else {
-                      temp_category <- temp_category[
-                              1:(length(temp_category)/2)*2
-                      ]
-                }
-                
-                temp_category <- c(
-                        temp_category,
-                        "Concerned Artist"
-                )
-                
-                if(length(temp_page) == length(temp_category)){
-                        return(list(temp_page,
-                                    temp_category,
-                                    length(temp_page))
-                              )} else {
-                        return("ERROOOOOOOOORRRRRR!!!")
-                }
         }
 }
 
