@@ -24,6 +24,7 @@ html_curator <- function(data_frame, col_num, row_num){
                                 split = "tabindex"
                         ))[1]
                         )
+                
                 page_link <- sapply(
                         1:length(page_link),
                         function(i) substr(
