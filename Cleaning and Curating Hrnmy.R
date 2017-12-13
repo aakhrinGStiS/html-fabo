@@ -91,6 +91,14 @@ html_curator <- function(data_frame, col_num, row_num){
                 
                         
         }
+        
+        df <- as.data.frame(matrix(ncol = 4, NA, nrow = length(temp)))
+        df[,1] <- page_link
+        df[,2] <- page_name
+        df[,3] <- page_cat
+        df[,4] <- page_verify
+        names(df) <- c("page_Link", "page_Name", "page_Category", "page_Verified")
+        return(df)
 }
 
 # Function to expand the data set to include all the pages liked by a FaUs
