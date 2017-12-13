@@ -138,30 +138,10 @@ sheets <- sapply(
         function(i) paste0(df[i, 3], "_raw")
         )
 
-sheets_internal <- lapply(
-        sheets, 
-        function(i) gs_ws_ls(gs_title(i))
-        )
-
 data_list <- lapply(
         sheets, 
         function(i) as.data.frame(gs_read(gs_title(i), "Sheet1"))
         )
-
-data_list[[2]] <- data_list[[2]][!is.na(data_list[[2]][,4]), ]
-data_list[[3]] <- data_list[[3]][!is.na(data_list[[3]][,4]), ]
-data_list[[6]] <- data_list[[6]][!is.na(data_list[[6]][,4]), ]
-names(data_list[[2]]) <- names(data_list[[4]])
-data_list[[1]]$Comments <- NA
-data_list[[3]]$Comments <- NA
-
-data_list_standoff <- list()
-data_list_standoff[[1]] <- gs_read(gs_title(sheets[[2]]), "Sheet2")
-
-data_list_standoff <- append(
-        data_list_standoff, 
-        list(gs_read(gs_title(df[2, 3]), "Sheet1"))
-)
 
 data_list_new <- list()
 
@@ -203,4 +183,6 @@ for(i in 1:length(data_list_new)
         data_list_new[[i]], 
         paste0(df[i, 3], "_curated.csv")
 )
+
+collated <- unique(do.call(rbind, data_list_new))
 
