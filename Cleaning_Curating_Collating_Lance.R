@@ -126,21 +126,54 @@ gs_ls()
 
 # read the required spreadsheet data
 data <- gs_title("Recomally_Data_Collator")
-df <- gs_read(data, "Tracker")
-
-# curate the data set
-df <- as.data.frame(df)
-df <- df[,-c(1,4,6,7)]
-
-data_list <- list()
-sheets <- sapply(
-        c(1, 3:nrow(df)), 
-        function(i) paste0(df[i, 3], "_raw")
+allsheets <- as.data.frame(gs_ls())
+sheets <- allsheets[,1][
+        grep(tolower(
+                allsheets[,1]),
+             pattern = "parveen|peter|mallesh"
+            )
+]
+sheets <- sort(sheets)
+sheets_list <- list()
+sheets_list <- lapply(
+        sheets, 
+        function(i) gs_ws_ls(gs_title(i))
         )
 
-data_list <- lapply(
+sheets_list <- list()
+sheets_list <- lapply(
         sheets, 
-        function(i) as.data.frame(gs_read(gs_title(i), "Sheet1"))
+        function(i) gs_ws_ls(gs_title(i))
+        )
+
+data_list <- list()
+count <- 1
+for(i in 1:length(sheets)){
+        for(j in 1:length(sheets_list[[i]])){
+                data_list[[count]] <- as.data.frame(
+                        gs_read(
+                                gs_title(sheets[i]),
+                                ws = j
+                        )
+                )
+                names(data_list)[count] <- paste0(sheets[[i]], "_", j)
+                count <- count + 1
+        }
+}
+
+data_names <- which(
+        sapply(
+                1:length(data_list),
+                function(i) ncol(data_list[[i]])
+                ) == 7
+)
+
+data_list <- lapply(
+        which(sapply(
+                1:length(data_list),
+                function(i) ncol(data_list[[i]])
+                ) == 7),
+                function(j) data_list[[j]]
         )
 
 data_list_new <- list()
