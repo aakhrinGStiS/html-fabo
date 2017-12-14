@@ -211,11 +211,12 @@ for(j in 1:length(data_list)){
         }
 }
 
-for(i in 1:length(data_list_new)
-   ) write.csv(
-        data_list_new[[i]], 
-        paste0(df[i, 3], "_curated.csv")
-)
+for(i in 1:length(data_list_new)){
+        write.csv(
+                data_list_new[[i]],
+                paste0(names(data_list)[i], "_curated.csv")
+        )
+}
 
 collated <- unique(do.call(rbind, data_list_new))
 
