@@ -126,7 +126,7 @@ gs_ls()
 
 # read the required spreadsheet data
 data <- gs_title("Recomally_Data_Collator")
-df <- gs_read(data, "Tracker")
+df <- gs_read(data, "Tracker", range = "A104:E151")
 
 # curate the data set
 df <- as.data.frame(df)
