@@ -140,12 +140,6 @@ sheets_list <- lapply(
         function(i) gs_ws_ls(gs_title(i))
         )
 
-sheets_list <- list()
-sheets_list <- lapply(
-        sheets, 
-        function(i) gs_ws_ls(gs_title(i))
-        )
-
 data_list <- list()
 count <- 1
 for(i in 1:length(sheets)){
@@ -209,6 +203,7 @@ for(j in 1:length(data_list)){
                         temp
                 )
         }
+        print(paste0("j", "data frame is done"))
 }
 
 for(i in 1:length(data_list_new)){
