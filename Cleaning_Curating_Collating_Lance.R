@@ -203,7 +203,7 @@ for(j in 1:length(data_list)){
                         temp
                 )
         }
-        print(paste0("j", "data frame is done"))
+        print(paste0(j, " data frame is done"))
 }
 
 for(i in 1:length(data_list_new)){
